@@ -21,10 +21,32 @@ repositories {
 	mavenCentral()
 }
 
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation group: 'io.opentelemetry.contrib', name: 'opentelemetry-jmx-metrics', version: '1.32.0-alpha'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.register('copyJarToBin') {
+	copy {
+		from "opentelemetry-javaagent.jar"
+		into layout.buildDirectory.dir("agent")
+		rename "opentelemetry-javaagent-.*\\.jar", "opentelemetry-javaagent.jar"
+	}
+	copy {
+		from "opentelemetry-jmx-metrics-1.32.0-alpha.jar"
+		into layout.buildDirectory.dir("agent")
+		rename "opentelemetry-jmx-metrics-.*\\.jar", "opentelemetry-jmx-metrics.jar"
+	}
+}
+
+bootRun {
+	dependsOn('copyJarToBin')
+}
+
+bootJar {
+	dependsOn('copyJarToBin')
 }
 
 tasks.named('test') {
